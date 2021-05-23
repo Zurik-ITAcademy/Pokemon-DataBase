@@ -418,8 +418,9 @@ window.addEventListener('load', () => {
 const pokDtb = JSON.parse(localStorage.getItem('pokDtb'));
 
 $searchInput.addEventListener('input', e => {
-    const filterArr = pokDtb.filter(item => item.name.includes(e.target.value));
-    if(e.target.value !== ''){
+    const value = e.target.value.toUpperCase()
+    const filterArr = pokDtb.filter(item => item.name.toUpperCase().includes(value.toUpperCase()));
+    if(value !== ''){
         const template = filterArr.map(item => {
             return cardTemplate(item);
         }).join('');
