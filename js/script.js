@@ -11,291 +11,152 @@ const getRequest = (url, query, cb) =>{
         console.log(err);
     })
 
-    xhr.send()
+    xhr.send();
 }
 
 
 const $container = document.querySelector('.cardContainer')
 
+window.addEventListener('load', ()=>{
+    getRequest(`${baseUrl}/pokemon`,'offset=0&limit=1', res =>{
+        res.results.forEach(item => {
+            pokemon(item.url)
+        });
+    })
+    
+    const pokemon = url =>{
+        getRequest(url,'', res=>{
+           return $container.innerHTML +=`
+            <div class="skills col-lg-4">
+                <div class="container row">                       
+                    <div class="skill-card col-lg-3">
+                        <div class="card">
+                            <div class="i"><img src="${res.sprites.other.dream_world.front_default}"></div>
+                            <h4>${res.name}</h4>
+                            <button class="butn"  onclick="singlePokemon('${url}')">READ MOREE</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `
+        })
+    }
+})
+
+// Пагинация на страницу
+
+const $prevBtn = document.querySelector('.prevBtn');
+const $page = document.querySelector('.page');
+const $nextBtn = document.querySelector('.nextBtn');
+const LIMIT = 20;
+const TOTAL_POKEMONS = 1118;
+const TOTAL_PAGES = Math.floor(TOTAL_POKEMONS / LIMIT)
+let pageCounter = 1;
+let offsetCounter = 0;
+
+
+const getRequests = (routes, queries, cb) =>{
+    const baseUrl = 'https://pokeapi.co/api/v2';
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', `${baseUrl}/${routes}?${queries}`);
+    xhr.addEventListener('load', () =>{
+        const response = JSON.parse(xhr.response);
+        cb(response)
+    })
+
+    xhr.addEventListener('error', err =>{
+        console.log(err);
+    })
+
+    xhr.send()
+}
+
+getRequests(`pokemon`, `offset=${offsetCounter}&limit=${LIMIT}`, res =>{
+    res.results.forEach(item => {
+        pokemon(item.url)
+    });
+})
+const pokemon = url =>{
+    getRequest(url,'', res=>{
+        return $container.innerHTML +=`
+        <div class="skills col-lg-4">
+            <div class="container row">                       
+                <div class="skill-card col-lg-3">
+                    <div class="card">
+                        <div class="i"><img src="${res.sprites.other.dream_world.front_default}"></div>
+                        <h4>${res.name}</h4>
+                        <button class="butn"  onclick="singlePokemon('${url}')">READ MOREE</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        `
+    })
+}
+
 window.addEventListener('load', () =>{
+    $page.innerHTML= pageCounter;
+    $prevBtn.setAttribute('disabled', true)
+})
 
-    getRequest(`${baseUrl}/pokemon`,'offset=0&limit=100', res=>{
-        const template = res.results.map(({name, url}) =>{
-            return`
-                <div class="skills col-lg-4">
-                    <div class="container row">                       
-                        <div class="skill-card col-lg-3">
-                            <div class="card">
-                                <div class="i"><img src="https://1.bp.blogspot.com/-rCW-zE3bHmo/U9sZDk9e_KI/AAAAAAAACMU/FrtvsD97l7M/s1600/eiMArL4yT.png"></div>
-                                <h4>${name}</h4>
-                                <button class="butn"  onclick="singlePokemon('${url}')">READ MOREE</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `
-        }).join('')
-        $container.innerHTML = template;
-    })
+$nextBtn.addEventListener('click', e=>{
+    e.preventDefault();
+    $prevBtn.removeAttribute('disabled');
+    if(pageCounter >= 1 && pageCounter <= TOTAL_PAGES){
+        if(pageCounter === TOTAL_PAGES){
+            $nextBtn.setAttribute('disabled', true);
+            getRequests('pokemon', `offset=${offsetCounter += LIMIT}&limit=${LIMIT}`, res=>{
+                res.results.forEach(item => {
+                    pokemon(item.url)
+                });
+                pageCounter++;
+                $page.innerHTML = pageCounter;
+                const temp = res.results.map(item => pokemon(item.url)).join('');
+                $container.innerHTML = temp
+            })
+        }else{
+            getRequests('pokemon', `offset=${offsetCounter += LIMIT}&limit=${LIMIT}`, res=>{
+                pageCounter++;
+                $page.innerHTML = pageCounter;
+                const temp = res.results.map(item => pokemon(item.url)).join('');
+                $container.innerHTML = temp
+
+            })
+        }
+    }
 
 })
 
-const $page1 = document.querySelector('.page1')
-const $page2 = document.querySelector('.page2')
-const $page3 = document.querySelector('.page3')
-const $page4 = document.querySelector('.page4')
-const $page5 = document.querySelector('.page5')
-const $page6 = document.querySelector('.page6')
-const $page7 = document.querySelector('.page7')
-const $page8 = document.querySelector('.page8')
-const $page9 = document.querySelector('.page9')
-const $page10 = document.querySelector('.page10')
+$prevBtn.addEventListener('click', e=>{
+    e.preventDefault();
+    if(pageCounter >= 1){
+        pageCounter--;
+        if(pageCounter === 1){
+            $prevBtn.setAttribute('disabled', true);
+            offsetCounter = 0;
+            getRequests('pokemon', `offset=${offsetCounter}&limit=${LIMIT}`, res=>{
+                res.results.forEach(item => {
+                    pokemon(item.url)
+                });
+                $page.innerHTML = pageCounter;
+                const temp = res.results.forEach(item => pokemon(item.url)).join('');
+                $container.innerHTML = temp
 
-$page1.addEventListener('click', () =>{
+            })
+        }else{
+            getRequests('pokemon', `offset=${offsetCounter -= LIMIT}&limit=${LIMIT}`, res=>{
+                $nextBtn.removeAttribute('disabled')
+                $page.innerHTML = pageCounter;
+                const temp = res.results.map(item => pokemon(item.url)).join('');
+                $container.innerHTML = temp
 
-    getRequest(`${baseUrl}/pokemon`,'offset=0&limit=100', res=>{
-        const template = res.results.map(({name, url}) =>{
-            return`
-                <div class="skills col-lg-4">
-                    <div class="container row">                       
-                        <div class="skill-card col-lg-3">
-                            <div class="card">
-                                <div class="i"><img src="https://1.bp.blogspot.com/-rCW-zE3bHmo/U9sZDk9e_KI/AAAAAAAACMU/FrtvsD97l7M/s1600/eiMArL4yT.png"></div>
-                                <h4>${name}</h4>
-                                <button class="butn"  onclick="singlePokemon('${url}')">READ MOREE</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `
-        }).join('')
-        $container.innerHTML = template;
-    })
-
+            })
+        }
+    }
 })
 
-$page2.addEventListener('click', () =>{
+// Подробное информация о покемонов
 
-    getRequest(`${baseUrl}/pokemon`,'offset=100&limit=200', res=>{
-        const template = res.results.map(({name, url}) =>{
-            return`
-                <div class="skills col-lg-4">
-                    <div class="container row">                       
-                        <div class="skill-card col-lg-3">
-                            <div class="card">
-                                <div class="i"><img src="https://1.bp.blogspot.com/-rCW-zE3bHmo/U9sZDk9e_KI/AAAAAAAACMU/FrtvsD97l7M/s1600/eiMArL4yT.png"></div>
-                                <h4>${name}</h4>
-                                <button class="butn"  onclick="singlePokemon('${url}')">READ MOREE</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `
-        }).join('')
-        $container.innerHTML = template;
-    })
-
-})
-$page3.addEventListener('click', () =>{
-
-    getRequest(`${baseUrl}/pokemon`,'offset=200&limit=300', res=>{
-        const template = res.results.map(({name, url}) =>{
-            return`
-                <div class="skills col-lg-4">
-                    <div class="container row">                       
-                        <div class="skill-card col-lg-3">
-                            <div class="card">
-                                <div class="i"><img src="https://1.bp.blogspot.com/-rCW-zE3bHmo/U9sZDk9e_KI/AAAAAAAACMU/FrtvsD97l7M/s1600/eiMArL4yT.png"></div>
-                                <h4>${name}</h4>
-                                <button class="butn"  onclick="singlePokemon('${url}')">READ MOREE</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `
-        }).join('')
-        $container.innerHTML = template;
-    })
-
-})
-$page3.addEventListener('click', () =>{
-
-    getRequest(`${baseUrl}/pokemon`,'offset=300&limit=400', res=>{
-        const template = res.results.map(({name, url}) =>{
-            return`
-                <div class="skills col-lg-4">
-                    <div class="container row">                       
-                        <div class="skill-card col-lg-3">
-                            <div class="card">
-                                <div class="i"><img src="https://1.bp.blogspot.com/-rCW-zE3bHmo/U9sZDk9e_KI/AAAAAAAACMU/FrtvsD97l7M/s1600/eiMArL4yT.png"></div>
-                                <h4>${name}</h4>
-                                <button class="butn"  onclick="singlePokemon('${url}')">READ MOREE</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `
-        }).join('')
-        $container.innerHTML = template;
-    })
-
-})
-$page4.addEventListener('click', () =>{
-
-    getRequest(`${baseUrl}/pokemon`,'offset=400&limit=500', res=>{
-        const template = res.results.map(({name, url}) =>{
-            return`
-                <div class="skills col-lg-4">
-                    <div class="container row">                       
-                        <div class="skill-card col-lg-3">
-                            <div class="card">
-                                <div class="i"><img src="https://1.bp.blogspot.com/-rCW-zE3bHmo/U9sZDk9e_KI/AAAAAAAACMU/FrtvsD97l7M/s1600/eiMArL4yT.png"></div>
-                                <h4>${name}</h4>
-                                <button class="butn"  onclick="singlePokemon('${url}')">READ MOREE</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `
-        }).join('')
-        $container.innerHTML = template;
-    })
-
-})
-$page5.addEventListener('click', () =>{
-
-    getRequest(`${baseUrl}/pokemon`,'offset=500&limit=600', res=>{
-        const template = res.results.map(({name, url}) =>{
-            return`
-                <div class="skills col-lg-4">
-                    <div class="container row">                       
-                        <div class="skill-card col-lg-3">
-                            <div class="card">
-                                <div class="i"><img src="https://1.bp.blogspot.com/-rCW-zE3bHmo/U9sZDk9e_KI/AAAAAAAACMU/FrtvsD97l7M/s1600/eiMArL4yT.png"></div>
-                                <h4>${name}</h4>
-                                <button class="butn"  onclick="singlePokemon('${url}')">READ MOREE</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `
-        }).join('')
-        $container.innerHTML = template;
-    })
-
-})
-$page6.addEventListener('click', () =>{
-
-    getRequest(`${baseUrl}/pokemon`,'offset=600&limit=700', res=>{
-        const template = res.results.map(({name, url}) =>{
-            return`
-                <div class="skills col-lg-4">
-                    <div class="container row">                       
-                        <div class="skill-card col-lg-3">
-                            <div class="card">
-                                <div class="i"><img src="https://1.bp.blogspot.com/-rCW-zE3bHmo/U9sZDk9e_KI/AAAAAAAACMU/FrtvsD97l7M/s1600/eiMArL4yT.png"></div>
-                                <h4>${name}</h4>
-                                <button class="butn"  onclick="singlePokemon('${url}')">READ MOREE</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `
-        }).join('')
-        $container.innerHTML = template;
-    })
-
-})
-$page7.addEventListener('click', () =>{
-
-    getRequest(`${baseUrl}/pokemon`,'offset=700&limit=800', res=>{
-        const template = res.results.map(({name, url}) =>{
-            return`
-                <div class="skills col-lg-4">
-                    <div class="container row">                       
-                        <div class="skill-card col-lg-3">
-                            <div class="card">
-                                <div class="i"><img src="https://1.bp.blogspot.com/-rCW-zE3bHmo/U9sZDk9e_KI/AAAAAAAACMU/FrtvsD97l7M/s1600/eiMArL4yT.png"></div>
-                                <h4>${name}</h4>
-                                <button class="butn"  onclick="singlePokemon('${url}')">READ MOREE</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `
-        }).join('')
-        $container.innerHTML = template;
-    })
-
-})
-$page8.addEventListener('click', () =>{
-
-    getRequest(`${baseUrl}/pokemon`,'offset=800&limit=900', res=>{
-        const template = res.results.map(({name, url}) =>{
-            return`
-                <div class="skills col-lg-4">
-                    <div class="container row">                       
-                        <div class="skill-card col-lg-3">
-                            <div class="card">
-                                <div class="i"><img src="https://1.bp.blogspot.com/-rCW-zE3bHmo/U9sZDk9e_KI/AAAAAAAACMU/FrtvsD97l7M/s1600/eiMArL4yT.png"></div>
-                                <h4>${name}</h4>
-                                <button class="butn"  onclick="singlePokemon('${url}')">READ MOREE</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `
-        }).join('')
-        $container.innerHTML = template;
-    })
-
-})
-$page9.addEventListener('click', () =>{
-
-    getRequest(`${baseUrl}/pokemon`,'offset=900&limit=1000', res=>{
-        const template = res.results.map(({name, url}) =>{
-            return`
-                <div class="skills col-lg-4">
-                    <div class="container row">                       
-                        <div class="skill-card col-lg-3">
-                            <div class="card">
-                                <div class="i"><img src="https://1.bp.blogspot.com/-rCW-zE3bHmo/U9sZDk9e_KI/AAAAAAAACMU/FrtvsD97l7M/s1600/eiMArL4yT.png"></div>
-                                <h4>${name}</h4>
-                                <button class="butn"  onclick="singlePokemon('${url}')">READ MOREE</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `
-        }).join('')
-        $container.innerHTML = template;
-    })
-
-})
-$page10.addEventListener('click', () =>{
-
-    getRequest(`${baseUrl}/pokemon`,'offset=1000&limit=1118', res=>{
-        const template = res.results.map(({name, url}) =>{
-            return`
-                <div class="skills">
-                    <div class="container">                       
-                        <div class="skill-card">
-                            <div class="card">
-                                <div class="i"><img src="https://1.bp.blogspot.com/-rCW-zE3bHmo/U9sZDk9e_KI/AAAAAAAACMU/FrtvsD97l7M/s1600/eiMArL4yT.png"></div>
-                                <h4>${name}</h4>
-                                <button class="butn"  onclick="singlePokemon('${url}')">READ MOREE</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `
-        }).join('')
-        $container.innerHTML = template;
-    })
-
-})
-
-const infoPoke = document.querySelector('.infoPoke')
 
 function singlePokemon(url){
     getRequest(url, '', res =>{
@@ -390,6 +251,8 @@ function singlePokemon(url){
     })
 }
 
+// Поиск покемонов
+
 const getSearch = (url, cb) =>{
     const srch = new XMLHttpRequest();
     srch.open('GET', url);
@@ -409,7 +272,7 @@ window.addEventListener('load', () => {
     if(localStorage.getItem('pokDtb')){
         return;
     }else{
-        getSearch(`${baseUrl}/pokemon?limit=1118`, res => {
+        getSearch(`${baseUrl}/pokemon`, ' ', res => {
             localStorage.setItem('pokDtb', JSON.stringify(res.results));
         })
     }
@@ -421,33 +284,37 @@ $searchInput.addEventListener('input', e => {
     const value = e.target.value.toUpperCase()
     const filterArr = pokDtb.filter(item => item.name.toUpperCase().includes(value.toUpperCase()));
     if(value !== ''){
-        const template = filterArr.map(item => {
-            return cardTemplate(item);
-        }).join('');
+        const template = filterArr.forEach(item => {
+            pokemon(item.url)
+        });
         $container.innerHTML = template;
     }else{
-        getRequest(`${baseUrl}/pokemon`, 'offset=0&limit=100', res => {
-            const temp = res.results.map(item => {
-                return cardTemplate(item)
-            }).join('');
-    
-            $container.innerHTML = temp;
+        getRequest(`${baseUrl}/pokemon`, 'offset=0&limit=1', res =>{
+            res.results.forEach(item => {
+                pokemon(item.url)
+            });
+
         })
+
+        const pokemon = url =>{
+            getRequest(url,'', res=>{
+               return $container.innerHTML +=`
+                <div class="skills col-lg-4">
+                    <div class="container row">                       
+                        <div class="skill-card col-lg-3">
+                            <div class="card">
+                                <div class="i"><img src="${res.sprites.other.dream_world.front_default}"></div>
+                                <h4>${res.name}</h4>
+                                <button class="butn"  onclick="singlePokemon('${url}')">READ MOREE</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `
+            })
+        }
+        
     }
 })
 
-function cardTemplate(item){
-    return`
-        <div class="skills col-lg-4">
-            <div class="container row">                       
-                <div class="skill-card col-lg-3">
-                    <div class="card">
-                        <div class="i"><img src="https://1.bp.blogspot.com/-rCW-zE3bHmo/U9sZDk9e_KI/AAAAAAAACMU/FrtvsD97l7M/s1600/eiMArL4yT.png"></div>
-                        <h4>${item.name}</h4>
-                        <button class="butn"  onclick="singlePokemon('${item.url}')">READ MOREE</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `
-}
+

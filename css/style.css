@@ -485,7 +485,64 @@ body{
 
 /* ========= pagination ============ */
 
-.demo{
+.paginations{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 15px 0px;
+}
+
+.paginations .pagiChild{
+    justify-content: space-between;
+}
+
+.pagiChild .prevBtn{
+    margin: 0 5px;
+    padding: 2px 8px;
+    border: 1px solid #00cfe8;
+    outline: none;
+    background-color: #140536;
+    font-size: 15px;
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+    border-bottom-right-radius: 15px;
+    color: #fff;
+}
+
+.pagiChild .prevBtn:hover{
+    box-shadow: 0 0 10px #2196f3;
+    transition: .5s;
+}
+
+.pagiChild .nextBtn{
+    margin: 0 5px;
+    padding: 2px 8px;
+    border: 1px solid #00cfe8;
+    outline: none;
+    background-color: #140536;
+    font-size: 15px;
+    border-top-right-radius: 15px;
+    border-top-left-radius: 15px;
+    border-bottom-left-radius: 15px;
+    color: #fff;
+}
+
+.pagiChild .nextBtn:hover{
+    box-shadow: 0 0 10px #2196f3;
+    transition: .5s;
+}
+
+.pagiChild .page{
+    box-shadow: 0 0 10px #F00000;
+    padding: 2px 5px;
+    border: .5px solid #2196f3;
+    border-radius: 5px;
+    color: #F00000;
+}
+
+/* ===================== copy ============ */
+
+/* .demo{
     padding: 40px 0;
 }
 
@@ -595,14 +652,14 @@ body{
         display: inline-block;
         margin: 0 0 5px;
     }
-}
+}*/
 
 
 footer{
     width: 100%;
     min-height: 150px;
     position: relative;
-    background: url('https://i.ytimg.com/vi/2LP0CjfKco0/maxresdefault_live.jpg') center / cover;
+    background: #140536;
     border-top-left-radius: 15px;
     border-top-right-radius: 15px;
 }
@@ -630,9 +687,10 @@ footer .footerChild{
     text-align: center;
 }
 
-.footerContent h5{
+.footerContent h5, h3{
     font-weight: 800;
-}
+    color: #fff;
+} 
 
 /* Блоки о подробности Персонажа */
 
